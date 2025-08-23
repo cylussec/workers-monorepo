@@ -6,11 +6,60 @@
   "name": "workers-monorepo",
   "compatibility_date": "2025-04-01",
   "main": "./workers/app.ts",
-  "vars": {
-    "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF"
-  },
+  "routes": [
+    "busandbrew.com/*",
+    "www.busandbrew.com/*",
+    "busandbrew.brianseel.com/*"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "multi-website-db",
+      "database_id": "your-database-id-here"
+    }
+  ],
   "observability": {
     "enabled": true
+  },
+  "env": {
+    "staging": {
+      "name": "workers-monorepo-staging",
+      "vars": {
+        "FROM_EMAIL": "announcements@staging.busandbrew.com",
+        "REPLY_TO_EMAIL": "hello@staging.busandbrew.com",
+        "MAILCHANNELS_URL": "https://api.mailchannels.net/tx/v1/send",
+        "DISABLE_REAL_SEND": "true"
+      },
+      "routes": [
+        "staging.busandbrew.com/*"
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "multi-website-db-staging",
+          "database_id": "d809b0f8-0d03-4fad-983b-fae12b76707e"
+        }
+      ]
+    },
+    "production": {
+      "name": "workers-monorepo-prod",
+      "vars": {
+        "FROM_EMAIL": "announcements@busandbrew.com",
+        "REPLY_TO_EMAIL": "hello@busandbrew.com",
+        "MAILCHANNELS_URL": "https://api.mailchannels.net/tx/v1/send"
+      },
+      "routes": [
+        "busandbrew.com/*",
+        "www.busandbrew.com/*"
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "multi-website-db-prod",
+          "database_id": "be68fce1-b721-4a42-bf15-bb6929f45e81"
+        }
+      ]
+    }
   },
   /**
    * Smart Placement
