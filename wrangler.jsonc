@@ -14,8 +14,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "multi-website-db",
-      "database_id": "your-database-id-here"
+      "database_name": "multi-website-db-staging",
+      "database_id": "d809b0f8-0d03-4fad-983b-fae12b76707e"
     }
   ],
   "observability": {
