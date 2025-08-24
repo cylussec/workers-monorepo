@@ -1,0 +1,51 @@
+name: Deploy Worker
+
+on:
+  push:
+    branches: [ "staging", "main" ]
+  pull_request:
+    branches: [ "staging", "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Select env
+        id: select
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "ENV_NAME=production" >> $GITHUB_OUTPUT
+            echo "DB_NAME=multi-website-db-prod" >> $GITHUB_OUTPUT
+          else
+            echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
+            echo "DB_NAME=multi-website-db-staging" >> $GITHUB_OUTPUT
+          fi
+      - name: Apply schema
+        run: npx wrangler d1 execute ${{ steps.select.outputs.DB_NAME }} --file=./schema.sql
+      - name: Deploy
+        run: npx wrangler deploy --env ${{ steps.select.outputs.ENV_NAME }}
+
+  preview:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Upload preview (staging config)
+        run: npx wrangler versions upload --env staging --config wrangler.jsonc
+      # You can enhance this to comment the preview URL on the PR via actions/github-script
